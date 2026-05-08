@@ -87,7 +87,7 @@ export default function TravelAI() {
   useEffect(() => {
     setTrips(tripStore.getAll());
     const unsubscribe = tripStore.subscribe(setTrips);
-    return () => unsubscribe();
+    return () => { unsubscribe(); };
   }, []);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
