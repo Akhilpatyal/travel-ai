@@ -23,7 +23,7 @@ const BEST_LOCATIONS = [
   { name: 'Bromo, East Java', desc: 'Bromo Tengger Tour', img: 'https://images.unsplash.com/photo-1505993597083-3bd19fb75e57?auto=format&fit=crop&w=800&q=80' },
   { name: 'Denpasar, Bali', desc: 'Bali Beach Tourism', img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80' },
   { name: 'Ubud, Bali', desc: 'Cultural Heritage', img: 'https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?auto=format&fit=crop&w=800&q=80' },
-  { name: 'Borobudur, Magelang', desc: 'Ancient Temple Tour', img: 'https://images.unsplash.com/photo-1596402184320-417d717867cd?auto=format&fit=crop&w=800&q=80' },
+  { name: 'Borobudur, Magelang', desc: 'Ancient Temple Tour', img: 'https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=800&q=80' },
 ];
 
 const PACKAGES = [
@@ -72,7 +72,7 @@ const HeroSlider = () => {
 };
 
 export default function TravelAI() {
-  const [view, setView] = useState<'landing' | 'app' | 'discovery' | 'results'>('landing');
+  const [view, setView] = useState<'landing' | 'app' | 'discovery' | 'results' | 'all_destinations'>('landing');
   const [discoveryItem, setDiscoveryItem] = useState<any>(null);
   const [recommendations, setRecommendations] = useState<any>(null);
   const [trips, setTrips] = useState<Trip[]>([]);
@@ -134,12 +134,7 @@ export default function TravelAI() {
             </div>
             INDOTRAVI
           </div>
-          <div className="nav-pill hidden lg:flex bg-white/10 backdrop-blur-md border-white/20">
-            <a href="#" className="nav-link">Explore</a>
-            <a href="#" className="nav-link">Packages</a>
-            <a href="#" className="nav-link">Community</a>
-            <a href="#" className="nav-link">About</a>
-          </div>
+          <div></div>
           <div className="flex items-center gap-6">
             <button onClick={() => setView('app')} className="px-10 py-3 bg-white text-black font-extrabold rounded-full text-sm hover:scale-105 transition-all shadow-xl">
               Launch AI Assistant
@@ -228,12 +223,21 @@ export default function TravelAI() {
               <h2 className="text-5xl md:text-6xl font-black outfit leading-none mb-6">Explore Indonesian<br />Smart Tourism</h2>
               <p className="text-secondary text-lg">Curated by our Realtime Adaptive Planning engine to match the top-rated global travel standards.</p>
             </div>
-            <button className="px-10 py-4 border-2 border-black font-black rounded-full hover:bg-black hover:text-white transition-all">Explore All Spots</button>
+            <button 
+              onClick={() => setView('all_destinations')}
+              className="px-10 py-4 border-2 border-black font-black rounded-full hover:bg-black hover:text-white transition-all"
+            >
+              Explore All Spots
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
             {BEST_LOCATIONS.map((loc, i) => (
-              <div key={i} className={`relative rounded-[48px] overflow-hidden group cursor-pointer shadow-2xl transition-all duration-700 ${i === 0 || i === 3 ? 'md:col-span-2 aspect-[16/10]' : 'aspect-[10/13]'}`}>
+              <div 
+                key={i} 
+                onClick={() => { setDiscoveryItem(loc); setView('discovery'); }}
+                className={`relative rounded-[48px] overflow-hidden group cursor-pointer shadow-2xl transition-all duration-700 ${i === 0 || i === 3 ? 'md:col-span-2 aspect-[16/10]' : 'aspect-[10/13]'}`}
+              >
                 <img src={loc.img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out" alt={loc.name} />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90"></div>
                 <div className="absolute bottom-10 left-10 right-10 transform group-hover:-translate-y-2 transition-all duration-500">
@@ -339,6 +343,45 @@ export default function TravelAI() {
            <div className="w-2 h-2 rounded-full bg-accent-primary animate-pulse"></div>
            {toast}
         </div>}
+      </div>
+    );
+  }
+
+  if (view === 'all_destinations') {
+    return (
+      <div className="min-h-screen bg-white animate-fadeIn">
+        <nav className="p-8 px-12 bg-white flex justify-between items-center border-b border-gray-100 sticky top-0 z-50">
+          <button onClick={() => setView('landing')} className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors font-bold">
+            <ChevronRight size={20} className="rotate-180" /> Back
+          </button>
+          <div className="text-xl font-black outfit uppercase">ALL DESTINATIONS</div>
+          <button onClick={() => setView('app')} className="px-8 py-3 bg-black text-white rounded-full font-bold">Launch AI</button>
+        </nav>
+
+        <div className="max-w-7xl mx-auto py-20 px-6">
+          <div className="mb-16">
+             <h2 className="text-6xl font-black outfit mb-4">The Archipelago</h2>
+             <p className="text-gray-400 text-lg">Every corner of Indonesia has a story. Find yours.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[...BEST_LOCATIONS, ...BEST_LOCATIONS].map((loc, i) => (
+              <div 
+                key={i} 
+                onClick={() => { setDiscoveryItem(loc); setView('discovery'); }}
+                className="group cursor-pointer"
+              >
+                <div className="rounded-[40px] overflow-hidden aspect-[4/3] mb-6 shadow-xl">
+                  <img src={loc.img} className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700" />
+                </div>
+                <div className="px-2">
+                   <p className="text-xs font-black text-accent-primary uppercase tracking-widest mb-2">{loc.name}</p>
+                   <h4 className="text-2xl font-black outfit mb-2">{loc.desc}</h4>
+                   <p className="text-gray-500 text-sm">Experience the ultimate {loc.name} adventure with AI-curated spots.</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

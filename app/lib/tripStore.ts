@@ -31,7 +31,7 @@ function notify(trips: Trip[]) {
 export const tripStore = {
   subscribe(fn: Listener) {
     listeners.add(fn);
-    return () => listeners.delete(fn);
+    return () => { listeners.delete(fn); };
   },
 
   getAll(): Trip[] {
