@@ -72,8 +72,9 @@ const HeroSlider = () => {
 };
 
 export default function TravelAI() {
-  const [view, setView] = useState<'landing' | 'app' | 'discovery'>('landing');
+  const [view, setView] = useState<'landing' | 'app' | 'discovery' | 'results'>('landing');
   const [discoveryItem, setDiscoveryItem] = useState<any>(null);
+  const [recommendations, setRecommendations] = useState<any>(null);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTrip, setSelectedTrip] = useState<Trip | null>(null);
@@ -105,14 +106,21 @@ export default function TravelAI() {
 
   const handleAISearch = () => {
     if (!plannerData.destination) { showToast("Enter a destination first!"); return; }
-    setView('app');
-    handleCreateTrip({
+    
+    // Generate Mock Recommendations for the "Results" page
+    setRecommendations({
       destination: plannerData.destination,
-      days: Number(plannerData.days) || 3,
-      budget: Number(plannerData.budget) || 1000,
-      travelStyle: plannerData.style,
-      preferences: []
+      hotels: [
+        { name: 'Grand Hyatt ' + plannerData.destination, price: '$200/night', img: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400' },
+        { name: 'Urban Zen Boutique', price: '$120/night', img: 'https://images.unsplash.com/photo-1551882547-ff43c63ef53e?auto=format&fit=crop&w=400' },
+      ],
+      places: ['Central Landmark', 'Ancient Temple', 'Old Town Square'],
+      food: ['Local Night Market', 'Skyline Diner', 'Authentic ' + plannerData.destination + ' Bistro'],
+      activities: ['Sunset Photography Walk', 'Local Cooking Class', 'Hidden Gems Tour']
     });
+    
+    setView('results');
+    showToast("AI is analyzing your journey...");
   };
 
   if (view === 'landing') {
@@ -331,6 +339,146 @@ export default function TravelAI() {
            <div className="w-2 h-2 rounded-full bg-accent-primary animate-pulse"></div>
            {toast}
         </div>}
+      </div>
+    );
+  }
+
+  if (view === 'results' && recommendations) {
+    return (
+      <div className="min-h-screen bg-[#fafafa] animate-fadeIn">
+        <nav className="p-8 px-12 bg-white flex justify-between items-center shadow-sm sticky top-0 z-50">
+          <button onClick={() => setView('landing')} className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors font-bold">
+            <ChevronRight size={20} className="rotate-180" /> Modify Search
+          </button>
+          <div className="text-xl font-black outfit">TRAVEL<span className="text-accent-primary">AI</span></div>
+          <button onClick={() => setView('app')} className="px-8 py-3 bg-black text-white rounded-full font-bold">Open Full Planner</button>
+        </nav>
+
+        <div className="max-w-7xl mx-auto py-12 px-6">
+          <div className="mb-12">
+            <h1 className="text-4xl font-black mb-2">AI Recommendations for <span className="text-accent-primary capitalize">{recommendations.destination}</span></h1>
+            <p className="text-gray-500">Based on your {plannerData.style} style and ${plannerData.budget} budget.</p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            {/* Hotels */}
+            <div className="lg:col-span-2 space-y-10">
+              <section>
+                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><Building size={24} className="text-accent-primary" /> Top Recommended Hotels</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {recommendations.hotels.map((hotel: any, i: number) => (
+                    <div key={i} className="bg-white rounded-[32px] overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer group">
+                      <div className="h-48 overflow-hidden"><img src={hotel.img} className="w-full h-full object-cover group-hover:scale-105 transition-all" /></div>
+                      <div className="p-6">
+                        <h4 className="font-bold text-lg mb-1">{hotel.name}</h4>
+                        <p className="text-accent-primary font-black">{hotel.price}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><Utensils size={24} className="text-accent-amber" /> Must-Try Food Spots</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {recommendations.food.map((f: any, i: number) => (
+                    <div key={i} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-accent-amber/10 flex items-center justify-center text-accent-amber"><Utensils size={18} /></div>
+                      <span className="font-bold text-sm">{f}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </div>
+
+            {/* Sidebar Recommends */}
+            <div className="space-y-8">
+              <div className="bg-white p-8 rounded-[40px] shadow-lg border border-gray-100">
+                <h4 className="text-xl font-bold mb-6 flex items-center gap-2"><MapPin size={20} className="text-accent-cyan" /> Popular Places</h4>
+                <ul className="space-y-4">
+                  {recommendations.places.map((p: any, i: number) => (
+                    <li key={i} className="flex items-center gap-3 text-gray-600 font-medium border-b border-gray-50 pb-4">
+                      <CheckCircle size={16} className="text-emerald-500" /> {p}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="bg-black text-white p-8 rounded-[40px] shadow-2xl">
+                <h4 className="text-xl font-bold mb-4 flex items-center gap-2"><Sparkles size={20} className="text-accent-amber" /> Ready for the full experience?</h4>
+                <p className="text-gray-400 text-sm mb-8 leading-relaxed">Let our AI generate a complete hour-by-hour itinerary including weather updates and budget tracking.</p>
+                <button onClick={() => setView('app')} className="w-full py-4 bg-white text-black font-black rounded-2xl hover:bg-accent-primary hover:text-white transition-all">Start Planning</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (view === 'discovery' && discoveryItem) {
+    return (
+      <div className="min-h-screen bg-white animate-fadeIn">
+        <nav className="p-8 px-12 flex justify-between items-center border-b border-gray-100 sticky top-0 bg-white z-50">
+          <button onClick={() => setView('landing')} className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors font-bold">
+            <ChevronRight size={20} className="rotate-180" /> Back
+          </button>
+          <div className="text-xl font-black outfit uppercase tracking-tighter">INDOTRAVI<span className="text-accent-primary">.AI</span></div>
+          <button onClick={() => setView('app')} className="btn-glow px-10">Plan This Journey</button>
+        </nav>
+
+        <div className="max-w-7xl mx-auto py-12 px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start mb-24">
+            <div className="space-y-8">
+              <div className="rounded-[60px] overflow-hidden aspect-[4/5] shadow-2xl">
+                <img src={discoveryItem.img} className="w-full h-full object-cover" alt={discoveryItem.name} />
+              </div>
+              {/* Mini Gallery */}
+              <div className="grid grid-cols-3 gap-4">
+                 <div className="aspect-square rounded-3xl bg-gray-100 overflow-hidden"><img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=300" className="w-full h-full object-cover" /></div>
+                 <div className="aspect-square rounded-3xl bg-gray-100 overflow-hidden"><img src="https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?auto=format&fit=crop&w=300" className="w-full h-full object-cover" /></div>
+                 <div className="aspect-square rounded-3xl bg-gray-100 overflow-hidden"><img src="https://images.unsplash.com/photo-1596402184320-417d717867cd?auto=format&fit=crop&w=300" className="w-full h-full object-cover" /></div>
+              </div>
+            </div>
+            <div className="lg:pt-10">
+              <div className="inline-block px-4 py-1 bg-accent-primary/10 text-accent-primary rounded-full text-xs font-black uppercase mb-6 tracking-widest">Premium Insight</div>
+              <h1 className="text-7xl font-black outfit mb-8 tracking-tighter">{discoveryItem.name}</h1>
+              <p className="text-gray-500 text-xl mb-12 leading-relaxed font-medium">
+                Experience {discoveryItem.name} like a local with AI-driven insights. Discover the perfect balance of adventure and luxury tailored specifically to your vibe.
+              </p>
+              
+              <div className="grid grid-cols-2 gap-8 mb-12">
+                 <div className="p-6 bg-gray-50 rounded-3xl">
+                    <p className="text-3xl font-black mb-1">4.9/5</p>
+                    <p className="text-[10px] uppercase font-black text-gray-400">Guest Rating</p>
+                 </div>
+                 <div className="p-6 bg-gray-50 rounded-3xl">
+                    <p className="text-3xl font-black mb-1">$250</p>
+                    <p className="text-[10px] uppercase font-black text-gray-400">Avg. Daily Cost</p>
+                 </div>
+              </div>
+
+              <div className="space-y-6">
+                <h4 className="text-xl font-bold flex items-center gap-2">Top Places & Costs</h4>
+                <div className="space-y-4">
+                   {['Cultural Landmarks ($50)', 'City Center Explorer (Free)', 'Local Food Tour ($85)'].map((p, i) => (
+                     <div key={i} className="flex justify-between items-center p-4 border border-gray-100 rounded-2xl">
+                        <span className="font-bold">{p}</span>
+                        <ChevronRight size={16} className="text-gray-300" />
+                     </div>
+                   ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-20 p-20 rounded-[60px] bg-black text-white text-center relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-10 opacity-10"><Globe size={200} /></div>
+            <h3 className="text-5xl font-black mb-6 outfit">Start your journey today</h3>
+            <p className="text-gray-400 text-xl mb-12 max-w-2xl mx-auto">Our AI engine is ready to curate your entire {discoveryItem.name} experience in under 10 seconds.</p>
+            <button onClick={() => setView('app')} className="btn-glow text-lg py-5 px-14 mx-auto">Generate My AI Plan</button>
+          </div>
+        </div>
       </div>
     );
   }
