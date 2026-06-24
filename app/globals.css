@@ -1,32 +1,50 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&display=swap');
 
 @import "tailwindcss";
 
 :root {
-  --bg-darker: #050810;
-  --bg-primary: #0a0f1e;
+  /* Requested Design System Palette */
+  --ds-primary: #0EA5E9;
+  --ds-secondary: #22C55E;
+  --ds-dark: #0F172A;
+  --ds-bg: #F8FAFC;
+  --ds-surface: #FFFFFF;
+  --ds-border: #E2E8F0;
+
+  --ds-success: #10B981;
+  --ds-warning: #F59E0B;
+  --ds-error: #EF4444;
+
+  /* Back-compat with existing CSS tokens */
+  --bg-darker: var(--ds-dark);
+  --bg-primary: var(--ds-dark);
   --bg-secondary: #0d1526;
-  --bg-card: rgba(17, 24, 39, 0.7);
-  --accent-primary: #6366f1;
-  --accent-secondary: #8b5cf6;
-  --accent-cyan: #06b6d4;
+  --bg-card: rgba(255, 255, 255, 0.78);
+
+  --accent-primary: var(--ds-primary);
+  --accent-secondary: var(--ds-secondary);
+  --accent-cyan: var(--ds-primary);
   --accent-pink: #ec4899;
-  --accent-amber: #f59e0b;
-  --text-primary: #ffffff;
-  --text-secondary: #94a3b8;
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --shadow-glow: 0 20px 50px rgba(99, 102, 241, 0.2);
+  --accent-amber: var(--ds-warning);
+
+  --text-primary: #0B1220;
+  --text-secondary: #475569;
+
+  --glass-border: rgba(15, 23, 42, 0.10);
+  --shadow-glow: 0 20px 50px rgba(14, 165, 233, 0.18);
 }
 
 body {
-  background-color: #fff;
-  color: #000;
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--ds-bg);
+  color: var(--ds-dark);
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
-.outfit { font-family: 'Outfit', sans-serif; }
+/* Primary headings */
+.outfit { font-family: 'Poppins', 'Inter', sans-serif; }
+
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: 8px; }
@@ -353,4 +371,218 @@ body {
   font-size: 10px;
   font-weight: 700;
   border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* ============================================================
+   Step 2–8 additions: search form, feature cards, timeline,
+   planner shell, hotel cards, skeletons
+   ============================================================ */
+
+/* --- Modal / toast (referenced by JSX, previously implicit) --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(2, 6, 16, 0.7);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.3s ease forwards;
+}
+.modal-box {
+  width: 100%;
+  max-width: 520px;
+  border-radius: 36px;
+  animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  animation: slideUp 0.4s ease forwards;
+}
+.input-field {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 12px 18px;
+  color: #fff;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.3s;
+}
+.input-field:focus {
+  border-color: var(--accent-primary);
+  background: rgba(255, 255, 255, 0.06);
+}
+.input-field::placeholder { color: rgba(255, 255, 255, 0.3); }
+
+.animate-fadeIn { animation: fadeIn 0.6s ease forwards; }
+
+/* --- Hero search: per-field date/number theming --- */
+.ai-input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+/* --- AI Feature cards --- */
+.feature-card {
+  background: #fff;
+  border: 1px solid var(--ds-border);
+  border-radius: 32px;
+  padding: 36px;
+  transition: all 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.feature-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--accent-primary);
+  box-shadow: 0 30px 60px rgba(14, 165, 233, 0.12);
+}
+.feature-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(14,165,233,0.12), rgba(34,197,94,0.12));
+  color: var(--accent-primary);
+  margin-bottom: 24px;
+}
+
+/* --- Timeline cards (itinerary) --- */
+.timeline {
+  position: relative;
+  padding-left: 8px;
+}
+.timeline-stop {
+  position: relative;
+  display: flex;
+  gap: 20px;
+  padding-bottom: 28px;
+}
+.timeline-stop:last-child { padding-bottom: 0; }
+.timeline-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+}
+.timeline-dot {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 1;
+}
+.timeline-line {
+  width: 2px;
+  flex: 1;
+  margin: 6px 0;
+  background: linear-gradient(to bottom, var(--accent-primary), rgba(14,165,233,0.1));
+}
+.timeline-card-body {
+  flex: 1;
+  padding-bottom: 4px;
+}
+
+/* --- Premium hotel card --- */
+.hotel-card {
+  background: #fff;
+  border-radius: 32px;
+  overflow: hidden;
+  border: 1px solid var(--ds-border);
+  transition: all 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.hotel-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 30px 60px rgba(15, 23, 42, 0.12);
+}
+.why-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--ds-success);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* --- Planner shell (ChatGPT 3-column) --- */
+.planner-panel {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 28px;
+}
+.chat-bubble-ai, .chat-bubble-user {
+  max-width: 85%;
+  padding: 16px 20px;
+  border-radius: 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 500;
+}
+.chat-bubble-ai {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom-left-radius: 6px;
+}
+.chat-bubble-user {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: #fff;
+  border-bottom-right-radius: 6px;
+  margin-left: auto;
+}
+.chat-input-bar {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 8px 8px 8px 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.chat-input-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+}
+.chat-input-bar input::placeholder { color: rgba(255, 255, 255, 0.3); }
+
+/* --- Loading skeletons --- */
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 37%, rgba(255,255,255,0.04) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 12px;
+}
+@keyframes shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+/* --- Scroll reveal --- */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
